@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <script src="./js/jquery-3.5.1.js"></script>
+    <title>Snake Game</title>
+</head>
+
+<style>
+    body{
+        background-color: rgb(2, 11, 15)
+    }
+
+    .game_table{
+        position: relative;
+        width: 600px;
+        height: 600px;
+        background-color: #1b1e21;
+        border: 1px solid white;
+    }
+
+    .abstract_object {
+        width: 20px;
+        height: 20px;
+    }
+
+    #apple {
+        position: absolute;
+        background-color: #a71d2a;
+    }
+
+    #snake {
+        position: absolute;
+    }
+    
+    #snake_head {
+        position: relative;
+        background-color: #062c33;
+    }
+</style>
+
+<body>
+
+<div class="container">
+    <div class="row"><h1 class="text-light">SnakeGame</h1></div>
+    <div class="result_table">
+        <h3 class="status text-light font-weight-bold"></h3>
+        <h3 class="score text-light font-weight-bold"></h3>
+    </div>
+    <div class="game_table">
+        <div id="snake">
+            <div id="snake_head" class="abstract_object"></div>
+        </div>
+        <div id="apple" class="abstract_object"></div>
+    </div>
+</div>
+
+<script>
+    const left_key = 65
+    const up_key = 87
+    const right_key = 68
+    const down_key = 83
+    let score = 0
+
+    function get_apple_random_position(end) {
+        let range = []
+        for (let i = 0; i <= end-20; i += 20) {
+            range.push(i)
+        }
+        function rand_num() {
+            console.log(range[Math.floor(Math.random() * range.length)])
+            return range[Math.floor(Math.random() * range.length)]
+        }
+        $('#apple').css({top: rand_num(), left: rand_num()})
+        range = []
+    }
+
+    $(function() {
+        $('.status').html(`Game started!`)
+        $('.score').html(`Score: ${score}`)
+
+        let snake = $('#snake')
+        snake.css({
+            top: 300,
+            left: 300
+        })
+
+        let table = $('.game_table')
+        get_apple_random_position(600)
+        let snake_direction = null
+
+        let table_squeeze = setInterval(function () {
+            let table_width = parseInt(table.css('width'))
+            let table_height = parseInt(table.css('height'))
+            table.css({
+                width: table_width - 20,
+                height: table_height- 20,
+            })
+            let left = parseInt(snake.css('left'))
+            let top = parseInt(snake.css('top'))
+
+            if ((left >=  table_width - 20 || left < 0 || top >= table_height - 20 || top < 0)) {
+                $('.status').html(`Game Over!`)
+                clearInterval(table_squeeze)
+                $(document).off('keydown')
+            }
+        }, 500)
+
+        $(document).keydown(function(event) {
+            let left = parseInt(snake.css('left'))
+            let top = parseInt(snake.css('top'))
+            let pressed_key = event.which
+
+            if (pressed_key === left_key) {
+                snake_direction = 'left'
+                snake.css({
+                    left: left - 20
+                })
+            } else if (pressed_key === up_key) {
+                snake_direction = 'up'
+                snake.css({
+                    top: top - 20
+                });
+            } else if (pressed_key === right_key) {
+                snake_direction = 'right'
+                snake.css({
+                    left: left + 20
+                });
+            } else if (pressed_key === down_key) {
+                snake_direction = 'down'
+                snake.css({
+                    top: top + 20
+                });
+            }
+            if (JSON.stringify(snake.position()) === JSON.stringify($('#apple').position())) {
+                let table_end = $('.game_table').css('width')
+                score ++
+                $('.score').html(`Score: ${score}`)
+                get_apple_random_position(parseInt(table_end))
+            }
+
+        });
+    })
+</script>
+</body>
+</html>
